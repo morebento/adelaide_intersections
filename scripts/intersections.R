@@ -19,6 +19,11 @@ library(janitor)
 library(tidyquant)
 library(scales)
 
+ks <- function (x) { number_format(accuracy = 1,
+                                   scale = 1/1000,
+                                   suffix = "k",
+                                   big.mark = ",")(x) 
+  }
 
 # Data Gathering ----------------------------------------------------------------------------------------------------
 
@@ -91,11 +96,15 @@ location_lst <- data_combined_tbl %>%
 # Visualise -----------------------------------------------------------------------------------------------------
 
 # plot out the data in time series 
-
-data_combined_tbl %>%  
+intersections_plot <- data_combined_tbl %>%  
+  
+  # convert values into thousands
+  mutate(
+    vehicle_exposure = vehicle_exposure / 1000
+  ) %>%
   
   # only get the required locations
-  filter(location %in% locations_lst) %>% 
+  filter(location %in% location_lst) %>% 
   
   # clean up location so that it is a bit tidier and shorter 
   mutate(
@@ -111,7 +120,7 @@ data_combined_tbl %>%
   
   # facet wrap by location
   facet_wrap(vars(location_text)) +
-  ylim(0,80000) +
+  ylim(0,80) +
   
   # theme stuff
   theme_tq() +
@@ -124,13 +133,20 @@ data_combined_tbl %>%
     
                          Source: https://data.sa.gov.au/data/dataset/traffic-volumes-on-top-40-intersections-in-sa
                          
-                         Vehicle Exposure: A measure of traffic volumes passing through intersections. It is calculated by adding the estimated Annual Average Daily Traffic (est. AADT) volumes on all arms of the intersection 
-                         and dividing the result by two. Vehicle Exposure estimates are based on data obtained from the most recent single day 11 hour manual turning count surveys conducted at the intersections."),
+                         Vehicle Exposure: A measure of traffic volumes passing through intersections. It is calculated by adding the estimated Annual Average Daily Traffic (est. AADT) volumes 
+                         on all arms of the intersection and dividing the result by two. Vehicle Exposure estimates are based on data obtained from the most recent single day 11 hour manual 
+                         turning count surveys conducted at the intersections."),
     x = "Recorded Year",
-    y = "Vehicle Exposure",
+    y = "Vehicle Exposure ('000)",
     caption = "4 June 2021, Ben Moretti @morebento",
     colour = "Location"
-  )
-  
+  ) 
 
-
+# save to a file
+ggsave(
+  file = "plots/glen_osmond_road_intersection_traffic.png", 
+  plot = intersections_plot, 
+  width = 297, 
+  height = 210, 
+  units = "mm"
+)
