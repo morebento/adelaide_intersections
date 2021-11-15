@@ -18,6 +18,8 @@ library(tidyverse)
 library(janitor)
 library(tidyquant)
 library(scales)
+library(ggthemes)
+
 
 ks <- function (x) { number_format(accuracy = 1,
                                    scale = 1/1000,
@@ -75,10 +77,10 @@ data_combined_tbl <- bind_rows(data_2017_tbl,
 data_combined_tbl %>% glimpse()
 
 # look at the distinct names for the location
-data_combined_tbl %>%
-  distinct(location) %>%
-  arrange(location) %>%
-  View()
+# data_combined_tbl %>%
+#   distinct(location) %>%
+#   arrange(location) %>%
+#   View()
 
 # so looks like we just need the following locations 
 data_combined_tbl %>%  
@@ -93,6 +95,7 @@ location_lst <- data_combined_tbl %>%
   distinct(location) %>%
   pull()
  
+
 # Visualise -----------------------------------------------------------------------------------------------------
 
 # plot out the data in time series 
@@ -112,6 +115,15 @@ intersections_plot <- data_combined_tbl %>%
     location_text = str_trim(location, side="both")
   ) %>%
   
+  # convert to title case
+  mutate(
+    location_text = str_to_title(location_text)
+  ) %>%
+  
+  mutate(
+    location_text = str_replace_all(location_text, "Road", "Rd")
+  ) %>%
+  
   # plot a line plot with points for the recorded year vs vehicle exposure with colour by location and a label of the number
   ggplot(aes(x=recorded_year, y=vehicle_exposure, colour=location_text, label=vehicle_exposure)) +
   geom_line(size=2) +
@@ -119,12 +131,14 @@ intersections_plot <- data_combined_tbl %>%
   geom_text(aes(label=vehicle_exposure),hjust=0, vjust=2) +
   
   # facet wrap by location
-  facet_wrap(vars(location_text)) +
+  facet_wrap(vars(location_text), ncol = 1) +
   ylim(0,80) +
   
   # theme stuff
-  theme_tq() +
-  scale_colour_tq() +
+  theme_clean() +
+  scale_colour_tableau() +
+  
+  theme(legend.position = "") +
   
   # informative labels
   labs(
@@ -133,20 +147,24 @@ intersections_plot <- data_combined_tbl %>%
     
                          Source: https://data.sa.gov.au/data/dataset/traffic-volumes-on-top-40-intersections-in-sa
                          
-                         Vehicle Exposure: A measure of traffic volumes passing through intersections. It is calculated by adding the estimated Annual Average Daily Traffic (est. AADT) volumes 
-                         on all arms of the intersection and dividing the result by two. Vehicle Exposure estimates are based on data obtained from the most recent single day 11 hour manual 
-                         turning count surveys conducted at the intersections."),
+                         Code: https://github.com/morebento/adelaide_intersections
+                         
+                         Vehicle Exposure: A measure of traffic volumes passing through intersections. It is calculated 
+                         by adding the estimated Annual Average Daily Traffic (est. AADT) volumes on all arms of the 
+                         intersection and dividing the result by two. Vehicle Exposure estimates are based on data 
+                         obtained from the most recent single day 11 hour manual turning count surveys conducted at 
+                         the intersections."),
     x = "Recorded Year",
     y = "Vehicle Exposure ('000)",
-    caption = "4 June 2021, Ben Moretti @morebento",
+    caption = "4 June 2021  @morebento ",
     colour = "Location"
   ) 
 
 # save to a file
 ggsave(
-  file = "plots/glen_osmond_road_intersection_traffic.png", 
+  file = "plots/glen_osmond_road_intersection_traffic.pdf", 
   plot = intersections_plot, 
-  width = 297, 
-  height = 210, 
+  width = 210, 
+  height = 297, 
   units = "mm"
 )
