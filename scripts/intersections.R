@@ -147,8 +147,6 @@ intersections_plot <- data_combined_tbl %>%
     
                          Source: https://data.sa.gov.au/data/dataset/traffic-volumes-on-top-40-intersections-in-sa
                          
-                         Code: https://github.com/morebento/adelaide_intersections
-                         
                          Vehicle Exposure: A measure of traffic volumes passing through intersections. It is calculated 
                          by adding the estimated Annual Average Daily Traffic (est. AADT) volumes on all arms of the 
                          intersection and dividing the result by two. Vehicle Exposure estimates are based on data 
@@ -156,7 +154,7 @@ intersections_plot <- data_combined_tbl %>%
                          the intersections."),
     x = "Recorded Year",
     y = "Vehicle Exposure ('000)",
-    caption = "4 June 2021  @morebento ",
+    caption = "4 June 2021  @morebento https://github.com/morebento/adelaide_intersections ",
     colour = "Location"
   ) 
 
